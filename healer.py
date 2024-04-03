@@ -1,3 +1,4 @@
+# faster version heals about 455 troops per minute
 ##########################
 '''
 auto healer script. 
@@ -40,11 +41,13 @@ def load_positions_from_file():
             return json.load(f)
     return None
 
+amt2_none_flag = False
 def get_amount2(): # read amount2, convert it to an int if possible, and return the int
-    for _ in range(10):  # Attempt up to 10 times
+    global amt2_none_flag
+    for _ in range(75):  # Attempt up to 15 times
         print(f"get_amoun2 loop iteration {_}")
         pyautogui.click(amount_x2, amount_y2)
-        time.sleep(0.5)
+        time.sleep(0.2)
         pyperclip.copy('abcde')
         pyautogui.hotkey('ctrl', 'a')
         time.sleep(0.1)
@@ -55,6 +58,7 @@ def get_amount2(): # read amount2, convert it to an int if possible, and return 
             return int(amount2_)
         except ValueError:
             continue
+    amt2_none_flag = True
     return None  # Return None if unable to get integer after 10 attempts
 # blank field - returns none
 # amount2 button not present - returns last value in clipboard -> none in case of garbage value
@@ -87,28 +91,29 @@ else:
     heal_y = button_positions['heal']['y']
 
 i=0;
-target_amount = 65
+target_amount = '250'
 amount = ''
 amount2 = ""
 try:
     while True:
         print (f"This is loop iteration no. {i}.......................")
-        while True:
+        while True and amt2_none_flag == False:
             amount2 = get_amount2()
             print(f"\t--> amount2 was read to be: {amount2}")
             pyautogui.click(amount_x2, amount_y2) # close it
-            time.sleep(0.5)
+            time.sleep(0.1)
             # Check if we need to click the quick select button
-            print("Checking condition... condition met")
+            print("Checking condition... ")
             if amount2== 0: # or amount2 == None: 
                 break
             # if value is None then we did not manage to read it successfully. go to the start of this loop and try to read it again
             elif amount2 == None: 
-                continue
+                # continue
+                break
             else:
                 print("\t-->Condition not met. Clicking quick select button.")
                 pyautogui.click(select_x, select_y)
-                time.sleep(0.5)
+                time.sleep(0.1)
         
 
         ####### Next step #############
@@ -117,13 +122,16 @@ try:
         print("\t--> Setting amount to train")
         time.sleep(0.5)
         # Simulate pressing backspace three times to clear any existing value
-        for _ in range(3):
-            pyautogui.press('backspace')
+        # for _ in range(5):
+        #     pyautogui.press('backspace')
+        #     time.sleep(0.1)
+        pyautogui.hotkey('ctrl', 'a')
+        time.sleep(0.1)
+        pyautogui.hotkey('ctrl', 'a')
+        time.sleep(0.1)
+        for letter in target_amount:
+            pyautogui.write(letter)
             time.sleep(0.5)
-        pyautogui.write('6')
-        time.sleep(0.5)
-        pyautogui.write('5')
-        time.sleep(0.5)
         pyautogui.press('enter')
         time.sleep(0.5)
         ################################
@@ -134,10 +142,10 @@ try:
         time.sleep(1.25)
         pyautogui.click(heal_x, heal_y)
         print("Clicked heal")
-        time.sleep(0.75)
+        time.sleep(0.25)
 
         # wait for the help button to be pressed by someone
-        time.sleep(1)
+        time.sleep(0.25)
 
         i+=1
 except KeyboardInterrupt:
